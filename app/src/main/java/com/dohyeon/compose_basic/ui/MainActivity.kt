@@ -1,4 +1,4 @@
-package com.dohyeon.compose_basic
+package com.dohyeon.compose_basic.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
