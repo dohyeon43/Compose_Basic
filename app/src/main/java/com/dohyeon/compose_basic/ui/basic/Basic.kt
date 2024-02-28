@@ -1,15 +1,28 @@
 package com.dohyeon.compose_basic.ui.basic
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -104,7 +117,127 @@ fun BasicLayoutPreview(){
 }
 
 
+@SuppressLint("UnrememberedMutableState")
+@Composable
+fun BasicState(){
+    /**
+     * 컴포즈에서 상태는 UI 변경이 필요한 상황에서 UI 요소가 어떤 상태인지 나타내는 값입니다.
+     */
 
+    var expanded1 = false // 나쁜 예
+    val expanded2 = mutableStateOf(false) // 나쁜 예
+    val expanded3 = remember { mutableStateOf(false) }
+
+    /**
+     * 위에 3개의 상태 예시 중에 1번과 2번은 틀린 예이다.
+     *
+     * 1번의 경우, 컴포즈에서 해당 변수를 추적하지 않기 떄문이다. 상태 값이 변경되더라도 UI 갱신이 되지 않는다는 뜻이다.
+     * 여기서 리컴포지션이라는 개념이 나온다. 컴포즈에서는 UI를 새로운 데이터로 업데이트 하기 위해 컴포저블 함수를 다시 실행시키는 동작을 한다.
+     * 하지만 1번과 같이 상태를 구성하면 리컴포지션을 위한 트리거가 당겨지지 않아 UI 갱신이 되지 않는 것이다.
+     * 이 문제을 해결하기 위해서는 2, 3번과 같이 'mutableStateOf' 함수를 사용하면 된다.
+     * State와 MutableState는 값이 변경 될 때마다 리컴포지션을 트리거하는 인터페이스이다.
+     *
+     * 그럼, 2번은 왜 틀린 예일까? 우리는 상태 변수가 컴포저블 함수 안에 정의되었다는 점을 기억해야 한다.
+     * 리컴포지션 == 컴포저블 함수의 재실행 이라고 생각하면 리컴포지션 과정에서 상태 값이 다시 초기화된다.
+     * 결과적으로 리컴포지션이 이루어졌음에도 상태 변경이 이루어지지 않은 것이다.
+     * 이를 해결하기 위해 'remember'를 사용한다.
+     *
+     * remember에 의해 계산된 값은 초기 구성 중에 'Composition'에 저장되며,
+     * 저장된 값은 리컴포지션 과정 중에 반환된다. 결과적으로 상태 변경을 기억할 수 있는 것이다.
+     * remember는 가변 객체와 불변 객체를 모두 저장하는 데 사용할 수 있다.
+     * */
+
+    val extraPadding = if (expanded3.value) 48.dp else 0.dp
+    // 상태에 따라 다른 패딩 값을 가지는 변수, 간단한 계산이므로 저장될 필요 없다.
+
+
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+    ){
+        Row(modifier = Modifier.padding(24.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(extraPadding)
+            ) {
+                Text(text = "Hello, ")
+                Text(text = "State")
+            }
+            ElevatedButton(
+                onClick = { expanded3.value = !expanded3.value }
+            ) {
+                Text(if (expanded3.value) "Show less" else "Show more")
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun BasicHoisting(){
+    /**
+     * "컴포저블 함수에서 여러 함수가 읽거나 수정하는 상태는 공통의 상위 항목에 위치해야합니다"
+     * 이것을 호이스팅이라고 한다. 여러 내부요소가 공통으로 참조하거나 수정하는 상태는 상위 항목으로 끌어올려 관리하는 것이다.
+     * 상태가 중복되어 발생하는 버그를 방지하고 재사용성을 올릴 수 있다. 다만, 상위 요소에서 제어할 필요가 없는 상태는 호이스팅되면 안된다.
+     * */
+
+    var btnState by remember { mutableStateOf(true) }
+    //by 키워드는 Delegate 패턴을 구현해 일일히 .value를 입력할 필요없게 만들어준다.
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            /**
+             * 컴포즈에선 UI를 숨길 필요없이 간단한 kotlin 조건 구문으로
+             * 그저 컴포저블 함수를 실행시키지 않는 것 만으로 구성되지 않게 할 수 있더.
+             * */
+
+            if(btnState){
+                // 예시 버튼에 람다로 상태 변경 구문을 넘겨주어서
+                // 상태가 변경될 떄마다 버튼의 종류가 바뀌게 만드는 로직
+                ExampleHoistingButton(
+                    lambda = { btnState = false },
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.primary)
+                        .size(60.dp)
+                )
+            }else{
+                ExampleHoistingButton(
+                    lambda = { btnState = true },
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.secondary)
+                        .size(80.dp)
+                )
+            }
+        }
+
+    }
+
+
+}
+@Composable
+fun ExampleHoistingButton(
+    lambda : () -> Unit,
+    modifier: Modifier
+){
+    /**
+     * 이런식으로 람다를 활용하여 상위 요소의 상태에 접근하고 수정할 수 있다.
+     * */
+    Button(
+        onClick = { lambda() },
+        modifier =  modifier
+    ) {
+        Text(text = "상태 전환하여 버튼 바꾸기")
+    }
+}
 
 
 
