@@ -8,7 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.dohyeon.compose_basic.ui.basic.BasicHoisting
+import com.dohyeon.compose_basic.ui.basic.BasicSaveable
 import com.dohyeon.compose_basic.ui.basic.BasicState
+import com.dohyeon.compose_basic.ui.basic.BasicsThemeExample
 import com.dohyeon.compose_basic.ui.theme.Compose_BasicTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,25 +18,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Compose_BasicTheme {
-                // A surface container using the 'background' color from the theme
-                BasicHoisting()
+                MyApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun MyApp() {
+    BasicsThemeExample()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     Compose_BasicTheme {
-        Greeting("Android")
+        MyApp()
     }
 }
