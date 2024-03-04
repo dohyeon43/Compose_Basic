@@ -11,6 +11,7 @@ import com.dohyeon.compose_basic.ui.basic.BasicHoisting
 import com.dohyeon.compose_basic.ui.basic.BasicSaveable
 import com.dohyeon.compose_basic.ui.basic.BasicState
 import com.dohyeon.compose_basic.ui.basic.BasicsThemeExample
+import com.dohyeon.compose_basic.ui.basic.ListExampleScreen
 import com.dohyeon.compose_basic.ui.theme.Compose_BasicTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp() {
-    BasicsThemeExample()
+    ListExampleScreen()
 }
 
 @Preview(showBackground = true)
