@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Compose_Basic"
 include(":app")
- 
+include(":kakaotalk")
